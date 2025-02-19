@@ -26,6 +26,7 @@ public class HomeController {
     private UserService userService;
 
     @RequestMapping(path = "/index",method = RequestMethod.GET)
+    //首页
     public String getIndexPage(Model model, Page page){
         page.setRows(discussPostService.findDiscussPostRows(0));
         page.setPath("/index");

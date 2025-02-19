@@ -5,7 +5,8 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class DiscussPost {
+//帖子信息
+public class  DiscussPost {
     private int id;
     private int userId;
     private String title;
