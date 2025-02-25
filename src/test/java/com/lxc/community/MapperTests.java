@@ -1,8 +1,10 @@
 package com.lxc.community;
 
 import com.lxc.community.dao.DiscussPostMapper;
+import com.lxc.community.dao.LoginTicketMapper;
 import com.lxc.community.dao.UserMapper;
 import com.lxc.community.entity.DiscussPost;
+import com.lxc.community.entity.LoginTicket;
 import com.lxc.community.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,9 @@ public class MapperTests {
 
     @Autowired
     private DiscussPostMapper discussPostMapper;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Test
     public void testSelectUser() {
@@ -73,5 +78,32 @@ public class MapperTests {
 
         int rows = discussPostMapper.selectDiscussPostRows(149);
         System.out.println(rows);
+    }
+
+    /**
+    添加登录凭证测试
+     */
+    @Test
+    public void testInsertLoginTicket(){
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(101);
+        loginTicket.setTicket("123aaa");
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000*60*10));
+
+        loginTicketMapper.insertLoginTicket(loginTicket);
+    }
+
+    /**
+     查找登录凭证/更新状态测试
+     */
+    @Test
+    public void testSelectLoginTicket(){
+        LoginTicket loginTicket = loginTicketMapper.selectByTicket("123aaa");
+        System.out.println(loginTicket);
+
+        loginTicketMapper.updateStatus("123aaa",1);
+        loginTicket = loginTicketMapper.selectByTicket("123aaa");
+        System.out.println(loginTicket);
     }
 }

@@ -110,7 +110,6 @@ public class AlphaController {
 
     // 响应JSON数据(异步请求)
     // Java对象 -> JSON字符串 -> JS对象
-
     @RequestMapping(path = "/emp", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getEmp() {
@@ -152,7 +151,7 @@ public class AlphaController {
     //Ciooke示例
     public String setCookie(HttpServletResponse response){
         //创建Cookie
-        Cookie cookie = new Cookie("uuid", CommunityUtil.setUUID());
+        Cookie cookie = new Cookie("code", CommunityUtil.setUUID());
         //设置Cookie的生效范围(访问什么时候携带)
         cookie.setPath("/community/alpha");
         //设置Cookie的最大生存时长(单位秒)
@@ -164,14 +163,14 @@ public class AlphaController {
 
     @RequestMapping(path = "/cookie/get",method = RequestMethod.GET)
     @ResponseBody
-    public String getCookie(@CookieValue("uuid") String code){
+    public String getCookie(@CookieValue("code") String code){
         System.out.println(code);
         return "get Cookie";
     }
 
+    //Session示例
     @RequestMapping(path = "/session/set",method = RequestMethod.GET)
     @ResponseBody
-    //Ciooke示例
     public String setSession(HttpSession session){
         session.setAttribute("id",1);
         session.setAttribute("name","test");
@@ -184,5 +183,15 @@ public class AlphaController {
         System.out.println(session.getAttribute("id"));
         System.out.println(session.getAttribute("name"));
         return "get Session";
+    }
+
+
+    //ajax示例
+    @RequestMapping(path = "/ajax",method = RequestMethod.POST)
+    @ResponseBody
+    public String testAjax(String name,int age){
+        System.out.println(name);
+        System.out.println(age);
+        return CommunityUtil.getJSONString(0,"操作成功！");
     }
 }

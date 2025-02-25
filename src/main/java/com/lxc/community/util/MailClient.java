@@ -1,5 +1,7 @@
 package com.lxc.community.util;
-
+/**
+ * SMTP发送邮件工具
+ */
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

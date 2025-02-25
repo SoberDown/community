@@ -1,14 +1,19 @@
 package com.lxc.community.service;
 
+import com.lxc.community.dao.LoginTicketMapper;
 import com.lxc.community.dao.UserMapper;
+import com.lxc.community.entity.LoginTicket;
 import com.lxc.community.entity.User;
 import com.lxc.community.util.CommunityConstant;
 import com.lxc.community.util.CommunityUtil;
+import com.lxc.community.util.HostHolder;
 import com.lxc.community.util.MailClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -29,6 +34,12 @@ public class UserService implements CommunityConstant {
     @Autowired
     //注入模板引擎
     private TemplateEngine templateEngine;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private HostHolder hostHolder;
 
     @Value("${server.servlet.context-path}")
     //注入项目名
@@ -126,6 +137,82 @@ public class UserService implements CommunityConstant {
             return ACTIVATION_FAILURE;//激活失败
         }
 
+    }
+
+    /**
+    登录业务
+     */
+    public Map<String,Object> login(String username,String password,int expiredTime){
+        Map<String,Object> map = new HashMap<>();
+
+        //空值处理
+        if (StringUtils.isBlank(username)){
+            map.put("usernameProblem","账号不能为空!");
+            return map;
+        }
+        if (StringUtils.isBlank(password)){
+            map.put("passwordProblem","密码不能为空!");
+            return map;
+        }
+
+        //验证账号合法性
+        //查看库里是否有对应的用户名
+        User user = userMapper.selectByName(username);
+        if (user == null){
+            map.put("usernameProblem","账号不存在!");
+            return map;
+        }
+        //判断账号是否激活
+        if (user.getStatus() == 0){
+            map.put("usernameProblem","账号未激活!");
+            return map;
+        }
+
+        //验证密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)){
+            map.put("passwordProblem","密码不正确!");
+            return map;
+        }
+
+        //生成登录凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(CommunityUtil.setUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredTime*1000));//现在时间+方法上的时间（毫秒
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        map.put("ticket",loginTicket.getTicket());
+        return map;
+    }
+
+    /**
+    登出 更改状态
+     */
+    public void logout(String ticket){
+        loginTicketMapper.updateStatus(ticket,1);
+    }
+
+    /**
+    查询登录凭证
+     */
+    public LoginTicket findLoginTicket(String ticket){
+        return loginTicketMapper.selectByTicket(ticket);
+    }
+
+    /**
+    更新头像图片路径
+     */
+    public int upload(int userId, String headerUrl){
+        return userMapper.updateHeader(userId, headerUrl);
+    }
+
+    /**
+    修改密码
+     */
+    public int updatePassword(int userId,String password){
+        return userMapper.updatePassword(userId,password);
     }
 
 }
