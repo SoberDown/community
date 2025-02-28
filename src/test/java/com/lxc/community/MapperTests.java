@@ -2,9 +2,11 @@ package com.lxc.community;
 
 import com.lxc.community.dao.DiscussPostMapper;
 import com.lxc.community.dao.LoginTicketMapper;
+import com.lxc.community.dao.MessageMapper;
 import com.lxc.community.dao.UserMapper;
 import com.lxc.community.entity.DiscussPost;
 import com.lxc.community.entity.LoginTicket;
+import com.lxc.community.entity.Message;
 import com.lxc.community.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +31,9 @@ public class MapperTests {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private MessageMapper messageMapper;
 
     @Test
     public void testSelectUser() {
@@ -106,4 +111,34 @@ public class MapperTests {
         loginTicket = loginTicketMapper.selectByTicket("123aaa");
         System.out.println(loginTicket);
     }
+
+    /**
+     私信列表测试
+     */
+    @Test
+    public void testSelectLetters(){
+        List<Message> list = messageMapper.selectConversations(111, 0, 20);
+        for (Message message : list){
+            System.out.println(message);
+        }
+//        System.out.println(" * * * * * * * * * * * * * * * * * * * * *");
+
+        int count = messageMapper.selectConversationCount(111);
+        System.out.println(count);
+//        System.out.println(" * * * * * * * * * * * * * * * * * * * * *");
+
+        list = messageMapper.selectLetters("111_112", 0, 10);
+        for (Message message1 : list){
+            System.out.println(message1);
+        }
+//        System.out.println(" * * * * * * * * * * * * * * * * * * * * *");
+
+        count = messageMapper.selectLetterCount("111_112");
+        System.out.println(count);
+//        System.out.println(" * * * * * * * * * * * * * * * * * * * * *");
+
+        count = messageMapper.selectLetterUnreadCount(131,"111_131");
+        System.out.println(count);
+    }
+
 }
