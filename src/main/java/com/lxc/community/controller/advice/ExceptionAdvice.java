@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 //@ControllerAdvice用于修饰类,表示该类时Controller的全局配置类
-@ControllerAdvice(annotations = Controller.class)//扫描所有的Controller组件
+@ControllerAdvice(annotations = Controller.class)//如果括号里不加annotations,则会扫描所有的组件;加上annotations则只会扫描所有的Controller组件
 public class ExceptionAdvice {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
@@ -28,9 +28,9 @@ public class ExceptionAdvice {
 
         //判断是普通请求还是异步请求
         String xRequestedWith = request.getHeader("x-requested-with");
-        if ("XMLHttpRequest".equals(xRequestedWith)){//要的是xml,说明是个异步请求
-//            response.setContentType("application/json;charset=utf-8");直接设置成json格式
-            //设置为普通请求,手动转换为json格式数据
+        if ("XMLHttpRequest".equals(xRequestedWith)){//要的是xml,只有异步请求要xml,所有说明是个异步请求
+//            response.setContentType("application/json;charset=utf-8");设置响应字符串格式成json格式
+            //设置为普通字符串格式,手动转换为json格式数据
             response.setContentType("application/plain;charset=utf-8");
             PrintWriter writer = response.getWriter();
             writer.write(CommunityUtil.getJSONString(1,"服务器异常!"));
