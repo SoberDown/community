@@ -3,6 +3,7 @@ package com.lxc.community.controller;
 import com.lxc.community.annotation.LoginRequired;
 import com.lxc.community.dao.UserMapper;
 import com.lxc.community.entity.User;
+import com.lxc.community.service.LikeService;
 import com.lxc.community.service.UserService;
 import com.lxc.community.util.CommunityUtil;
 import com.lxc.community.util.HostHolder;
@@ -43,6 +44,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -174,6 +178,28 @@ public class UserController {
         model.addAttribute("updateSucceed","修改成功!请您重新登录！");
         userService.logout(ticket);
         return "redirect:/login";
+    }
+
+    /**
+     * 个人主页
+     * @param userId
+     * @param model
+     * @return
+     */
+    @RequestMapping(path = "/profile/{userId}",method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId,Model model){
+        User user = userService.findUserById(userId);
+        if (user == null){
+            throw new IllegalArgumentException("该用户不存在!");
+        }
+
+        //用户
+        model.addAttribute("user",user);
+        //点赞数量
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount",likeCount);
+
+        return "/site/profile";
     }
 
 }

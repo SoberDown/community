@@ -6,6 +6,7 @@ import com.lxc.community.entity.Page;
 import com.lxc.community.entity.User;
 import com.lxc.community.service.CommentService;
 import com.lxc.community.service.DiscussPostService;
+import com.lxc.community.service.LikeService;
 import com.lxc.community.service.UserService;
 import com.lxc.community.util.CommunityConstant;
 import com.lxc.community.util.CommunityUtil;
@@ -35,6 +36,9 @@ public class DiscussPostController implements CommunityConstant{
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private LikeService likeService;
 
     /**
      * 发布帖子
@@ -76,6 +80,15 @@ public class DiscussPostController implements CommunityConstant{
         //查询帖子的作者用于展示
         User user = userService.findUserById(post.getUserId());
         model.addAttribute("user",user);
+        /*
+        补充 点赞的数量和状态
+         */
+        long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST,discussPostId);
+        model.addAttribute("likeCount",likeCount);
+        //如果用户未登录,则状态都为0,显示'赞';如果登录了点过赞的账号,则显示该账号实际点赞状态
+        int likeStatus = hostHolder.getUser()==null ? 0 :
+                likeService.findEntityLikeStatus(hostHolder.getUser().getId(),ENTITY_TYPE_POST,discussPostId);
+        model.addAttribute("likeStatus",likeStatus);
 
         /*
         查询评论分页信息
@@ -101,6 +114,15 @@ public class DiscussPostController implements CommunityConstant{
                 commentVO.put("comment",comment);
                 //向评论的显示层对象中,添加评论作者
                 commentVO.put("user",userService.findUserById(comment.getUserId()));
+                /*
+                补充 点赞的数量和状态
+                 */
+                likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT,comment.getId());
+                commentVO.put("likeCount",likeCount);
+                //如果用户未登录,则状态都为0,显示'赞';如果登录了点过赞的账号,则显示该账号实际点赞状态
+                likeStatus = hostHolder.getUser()==null ? 0 :
+                        likeService.findEntityLikeStatus(hostHolder.getUser().getId(),ENTITY_TYPE_COMMENT,comment.getId());
+                commentVO.put("likeStatus",likeStatus);
 
                 /**
                  * 回复列表
@@ -120,6 +142,15 @@ public class DiscussPostController implements CommunityConstant{
                         //查回复目标的user,看是否拉黑;若查到target!=0,则代表已拉黑
                         User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());//
                         replyVO.put("target",target);
+                        /*
+                        补充 点赞的数量和状态
+                         */
+                        likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT,reply.getId());
+                        replyVO.put("likeCount",likeCount);
+                        //如果用户未登录,则状态都为0,显示'赞';如果登录了点过赞的账号,则显示该账号实际点赞状态
+                        likeStatus = hostHolder.getUser()==null ? 0 :
+                                likeService.findEntityLikeStatus(hostHolder.getUser().getId(),ENTITY_TYPE_COMMENT,reply.getId());
+                        replyVO.put("likeStatus",likeStatus);
 
                         replyVOList.add(replyVO);
                     }
