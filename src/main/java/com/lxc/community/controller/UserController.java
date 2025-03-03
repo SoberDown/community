@@ -3,8 +3,10 @@ package com.lxc.community.controller;
 import com.lxc.community.annotation.LoginRequired;
 import com.lxc.community.dao.UserMapper;
 import com.lxc.community.entity.User;
+import com.lxc.community.service.FollowService;
 import com.lxc.community.service.LikeService;
 import com.lxc.community.service.UserService;
+import com.lxc.community.util.CommunityConstant;
 import com.lxc.community.util.CommunityUtil;
 import com.lxc.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +27,7 @@ import java.util.Scanner;
 
 @Component
 @RequestMapping(path = "/user")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     @Value("${community.path.upload}")
     private String uploadPath;
@@ -47,6 +49,9 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private FollowService followService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -198,6 +203,19 @@ public class UserController {
         //点赞数量
         int likeCount = likeService.findUserLikeCount(userId);
         model.addAttribute("likeCount",likeCount);
+
+        //关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount",followeeCount);
+        //粉丝数量
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount",followerCount);
+        //是否已关注
+        boolean hasFollowed = false;
+        if (hostHolder.getUser() != null){
+            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(),ENTITY_TYPE_USER,userId);
+        }
+        model.addAttribute("hasFollowed",hasFollowed);
 
         return "/site/profile";
     }
