@@ -4,6 +4,7 @@ import com.lxc.community.entity.LoginTicket;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
+@Deprecated//把登录凭证存到redis中,现在这个不推荐使用
 public interface LoginTicketMapper {
 
     @Insert({"insert into login_ticket(user_id, ticket, status, expired) " +
