@@ -1,8 +1,10 @@
 package com.lxc.community.controller;
 
 import com.lxc.community.annotation.LoginRequired;
+import com.lxc.community.entity.Event;
 import com.lxc.community.entity.Page;
 import com.lxc.community.entity.User;
+import com.lxc.community.event.EventProduce;
 import com.lxc.community.service.FollowService;
 import com.lxc.community.service.UserService;
 import com.lxc.community.util.CommunityConstant;
@@ -31,6 +33,9 @@ public class FollowController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProduce eventProduce;
+
     /**
      * //关注
      * @param entityType
@@ -45,6 +50,19 @@ public class FollowController implements CommunityConstant {
             return CommunityUtil.getJSONString(403,"您还未登录!");
         }
         followService.follow(user.getId(), entityType, entityId);
+
+        /*
+        触发关注事件 添加通知
+         */
+        Event event = new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityId(entityId)
+                .setEntityType(entityType)
+                .setEntityUserId(entityId);//因为现在只能关注人,所以和entityId写一样
+                //页面上点击谁关注了我,是转到对方个人主页而不是帖子中;所以不需要post
+        eventProduce.fireEvent(event);
+
         return CommunityUtil.getJSONString(0,"已关注");
     }
 

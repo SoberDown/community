@@ -1,5 +1,5 @@
 package com.lxc.community.aspect;
-
+//AOP
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -32,6 +32,16 @@ public class ServiceLogAspect {
         //用户[xxx],在[xxx],访问了[com.lxc.community.service.xxx()]
         //获取request对象,使用RequestContextHolder转型成它的子类ServletRequestAttributes,功能更多些
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        /*
+        之前所以的Service都通过Controller调用,但是现在消费者里也调用了个Service;这次调用里没有request所以爆attributes空指针异常
+         */
+        if (attributes == null){
+            //表示不是一个页面访问
+            String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            return;
+        }
+
         //通过attributes获取request对象
         HttpServletRequest request = attributes.getRequest();
         //通过request获取ip地址
