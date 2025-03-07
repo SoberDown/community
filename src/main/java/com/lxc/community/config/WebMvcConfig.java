@@ -6,6 +6,7 @@ package com.lxc.community.config;
 import com.lxc.community.controller.interceptor.AlphaInterceptor;
 import com.lxc.community.controller.interceptor.LoginRequiredInterceptor;
 import com.lxc.community.controller.interceptor.LoginTicketInterceptor;
+import com.lxc.community.controller.interceptor.MessageInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -24,6 +25,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private LoginRequiredInterceptor loginRequiredInterceptor;
 
+    @Autowired
+    private MessageInterceptor messageInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(alphaInterceptor)//添加所选的拦截器
@@ -34,6 +38,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");//拦截器不生效的的路径
 
         registry.addInterceptor(loginRequiredInterceptor)//添加所选的拦截器
+                .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");//拦截器不生效的的路径
+
+        registry.addInterceptor(messageInterceptor)//添加所选的拦截器
                 .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");//拦截器不生效的的路径
     }
 }
